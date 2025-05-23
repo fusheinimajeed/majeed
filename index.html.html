@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAMLAN MART - POS System</title>
+    <style>
+        @font-face {
+            font-family: 'Cambria Bold';
+            src: url('https://fonts.cdnfonts.com/css/Cambria') format('woff2');
+            font-weight: bold;
+            font-style: normal;
+        }
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        body {
+            font-family: 'Cambria', Cambria;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+        .watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-family: 'Mistral';
+            color: red;
+            font-size: 18px;
+            z-index: 9999;
+            background-color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .app-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .app-header h1 {
+            margin: 0;
+            font-size: 8rem;
+            letter-spacing: 2px;
+        }
+        .navbar {
+            background-color: var(--dark);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: var(--primary);
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--secondary);
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f1f1f1;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background: var(--secondary);
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: var(--light);
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+            width: 200px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .status-available {
+            color: var(--success);
+            font-weight: 600;
+        }
+        .status-low {
+            color: var(--warning);
+            font-weight: 600;
+        }
+        .status-unavailable {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--primary);
+        }
+        .login-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+        .total-sales {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 20px;
+            padding: 10px;
+            background: var(--light);
+            border-radius: 4px;
+        }
+        .edit-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+        }
+        .currency::before {
+            content: "₵";
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .sales-date-group {
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .sales-date-header {
+            background-color: var(--light);
+            padding: 10px 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .sales-date-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .sales-date-content.expanded {
+            max-height: 1000px;
+        }
+        .payslip-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .payslip-result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .payslip-watermark {
+            position: absolute;
+            opacity: 0.1;
+            font-size: 60px;
+            transform: rotate(-30deg);
+            pointer-events: none;
+            z-index: 0;
+            width: 100%;
+            text-align: center;
+            top: 50%;
+            left: 0;
+            font-family: 'Cambria', serif;
+        }
+        .print-container {
+            position: relative;
+        }
+        .employee-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .employee-form input, .employee-form select {
+            width: 100%;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        .search-sales {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-sales input {
+            flex: 1;
+        }
+        .print-watermark {
+            position: absolute;
+            opacity: 0.1;
+            font-size: 80px;
+            transform: rotate(-30deg);
+            pointer-events: none;
+            z-index: 0;
+            width: 100%;
+            text-align: center;
+            top: 40%;
+            left: 0;
+            font-family: 'Cambria', serif;
+        }
+        .message-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            max-width: 70%;
+        }
+        .message.sent {
+            background-color: #e3f2fd;
+            margin-left: auto;
+        }
+        .message.received {
+            background-color: #f1f1f1;
+            margin-right: auto;
+        }
+        .message-sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .message-time {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: right;
+        }
+        .message-form {
+            display: flex;
+            gap: 10px;
+        }
+        .message-form textarea {
+            flex: 1;
+            min-height: 80px;
+        }
+        .export-btn {
+            background-color: #9b59b6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Watermark -->
+    <div class="watermark">Majeed Gerrard</div>
+
+    <!-- App Header -->
+    <div class="app-header">
+        <h1>NAMLAN</h1>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h2>NAMLAN SYSTEM LOGIN</h2>
+            <div class="form-group">
+                <select id="userRole" class="form-control">
+                    <option value="employee">EMPLOYEE</option>
+                    <option value="admin">ADMIN</option>
+                </select>
+            </div>
+            <div class="form-group" id="usernameField">
+                <input type="text" id="username" placeholder="Username" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="password" id="passwordInput" placeholder="Password" class="form-control" onkeypress="handleKeyPress(event)">
+            </div>
+            <button onclick="checkPassword()" class="btn btn-primary">LOGIN</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="appContent" class="hidden">
+        <div class="navbar">
+            <h3 id="dashboardTitle">POS System Dashboard</h3>
+            <div>
+                <button onclick="logout()" class="btn btn-danger">LOGOUT</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Admin Tabs -->
+            <div id="adminTabs" class="tabs hidden">
+                <div class="tab active" onclick="switchTab('products')">PRODUCT</div>
+                <div class="tab" onclick="switchTab('employees')">EMPLOYEES</div>
+                <div class="tab" onclick="switchTab('sales')">DAILY SALES</div>
+                <div class="tab" onclick="switchTab('monthlySales')">MONTHLY SALES</div>
+                <div class="tab" onclick="switchTab('payslips')">PAYSLIPS</div>
+                <div class="tab" onclick="switchTab('messages')">MESSAGES</div>
+				 <div class="tab" onclick="switchTab('contact')"><strong>For technical support, contact the developer @ 0241713272, +4797362918, or fusheinimajeed@outlook.com</div>
+            </div>
+
+            <!-- Employee View -->
+            <div id="employeeView" class="hidden">
+                <div class="card">
+                    <h3>ENTER DAILY SALES</h3>
+                    <div class="search-sales">
+                        <input type="date" id="employeeSearchDate" class="form-control">
+                        <button onclick="searchEmployeeSales()" class="btn btn-primary">SEARCH</button>
+                        <button id="printDailySalesBtn" onclick="printDailySales()" class="btn btn-warning" disabled>PRINT</button>
+                        <button id="exportDailySalesBtn" onclick="exportDailySalesToExcel()" class="btn export-btn" disabled>EXPORT</button>
+                    </div>
+                    <table id="employeeSalesTable">
+                        <thead>
+                            <tr>
+                                <th>S/N</th>
+                                <th>PRODUCT</th>
+                                <th>PRICE</th>
+                                <th>IN STOCK</th>
+                                <th>QUANTITY SOLD</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeSalesList"></tbody>
+                    </table>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <button onclick="submitSales()" class="btn btn-success">SUBMIT SALES</button>
+                    </div>
+                    <div class="total-sales">
+                        TODAY'S TOTAL SALES: <span class="currency" id="dailyTotal">0.00</span>
+                    </div>
+                </div>
+
+                <!-- Employee Messages Tab -->
+                <div class="card" style="margin-top: 20px;">
+                    <h3>Messages</h3>
+                    <div class="message-container" id="employeeMessageContainer"></div>
+                    <div class="message-form">
+                        <select id="employeeMessageRecipient" class="form-control">
+                            <option value="">SELECT RECIPIENT</option>
+                        </select>
+                        <textarea id="employeeMessageInput" placeholder="Type your message here..." class="form-control"></textarea>
+                        <button onclick="sendEmployeeMessage()" class="btn btn-primary">SEND</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Tab Contents -->
+            <div id="adminContent" class="hidden">
+                <!-- Products Tab -->
+                <div id="productsTab" class="tab-content active">
+                    <div class="card">
+                        <h3>PRODUCT MANAGEMENT</h3>
+                        <div class="form-group">
+                            <input type="text" id="productName" placeholder="Product Name">
+                            <input type="number" id="productPrice" placeholder="Price" step="0.01">
+                            <input type="number" id="productQuantity" placeholder="In Stock">
+                            <button onclick="addProduct()" class="btn btn-success">ADD PRODUCT</button>
+                        </div>
+                        <table id="inventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>S/N</th>
+                                    <th>PRODUCT</th>
+                                    <th>PRICE</th>
+                                    <th>IN STOCK</th>
+                                    <th>STATUS</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryList"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Employees Tab -->
+                <div id="employeesTab" class="tab-content">
+                    <div class="card">
+                        <h3>EMPLOYEE MANAGEMENT</h3>
+                        <div class="employee-form">
+                            <input type="text" id="newEmployee" placeholder="Username" required>
+                            <input type="password" id="newEmployeePass" placeholder="Password" required>
+                            <input type="text" id="firstName" placeholder="First Name" required>
+                            <input type="text" id="lastName" placeholder="Last Name" required>
+                            <select id="gender" required>
+                                <option value="">SELECT GENDER</option>
+                                <option value="Male">MALE</option>
+                                <option value="Female">FEMALE</option>
+                            </select>
+                            <input type="date" id="dob" placeholder="Date of Birth" required>
+                            <input type="tel" id="phone" placeholder="Phone Number" required>
+                            <textarea id="address" placeholder="Home Address" class="full-width" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button onclick="addEmployee()" class="btn btn-primary">ADD EMPLOYEE</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>USERNAME</th>
+                                    <th>FULL NAME</th>
+                                    <th>GENDER</th>
+                                    <th>PHONE</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesList"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sales Tab -->
+                <div id="salesTab" class="tab-content">
+                    <div class="card">
+                        <h3>DAILY SALES RECORDS</h3>
+                        <div class="search-sales">
+                            <input type="date" id="reportDate" class="form-control">
+                            <button onclick="generateDailyReport()" class="btn btn-primary">SEARCH</button>
+                            <button id="printAdminDailySalesBtn" onclick="printDailySales()" class="btn btn-warning" disabled>PRINT</button>
+                            <button id="exportAdminDailySalesBtn" onclick="exportDailySalesToExcel()" class="btn export-btn" disabled>EXPORT</button>
+                        </div>
+                        <div id="groupedSalesRecords"></div>
+                        <div id="dailyReport"></div>
+                    </div>
+                </div>
+
+                <!-- Monthly Sales Tab -->
+                <div id="monthlySalesTab" class="tab-content">
+                    <div class="card">
+                        <h3>MONTHLY SALES RECORDS</h3>
+                        <div class="search-sales">
+                            <input type="month" id="monthlyReportDate" class="form-control">
+                            <button onclick="generateMonthlyReport()" class="btn btn-primary">SEARCH</button>
+                            <button id="printMonthlySalesBtn" onclick="printMonthlySales()" class="btn btn-warning" disabled>PRINT</button>
+                            <button id="exportMonthlySalesBtn" onclick="exportMonthlySalesToExcel()" class="btn export-btn" disabled>EXPORT</button>
+                        </div>
+                        <div id="monthlyReport"></div>
+                    </div>
+                </div>
+
+                <!-- Payslips Tab -->
+                <div id="payslipsTab" class="tab-content">
+                    <div class="card">
+                        <h3>EMPLOYEE PAYSLIP</h3>
+                        <div class="payslip-form">
+                            <select id="payslipEmployee" class="form-control">
+                                <option value="">SELECT EMPLOYEE</option>
+                            </select>
+                            <input type="number" id="basicSalary" placeholder="Basic Salary" class="form-control" step="0.01">
+                            <input type="number" id="allowances" placeholder="Allowances" class="form-control" step="0.01" value="0">
+                            <input type="number" id="deductions" placeholder="Deductions" class="form-control" step="0.01" value="0">
+                            <input type="month" id="payMonth" class="form-control">
+                            <button onclick="generatePayslip()" class="btn btn-primary">GENERATE PAYSLIP</button>
+                        </div>
+                        <div id="payslipResult" class="payslip-result hidden">
+                            <h4>PAYSLIP DETAILS</h4>
+                            <div id="payslipDetails"></div>
+                            <button id="printPayslipBtn" onclick="printPayslip()" class="btn btn-success" style="margin-top: 10px;" disabled>PRINT PAYSLIP</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div id="messagesTab" class="tab-content">
+                    <div class="card">
+                        <h3>Messages</h3>
+                        <div class="message-container" id="adminMessageContainer"></div>
+                        <div class="message-form">
+                            <select id="messageRecipient" class="form-control">
+                                <option value="">SELECT RECIPIENT</option>
+                            </select>
+                            <textarea id="adminMessageInput" placeholder="Type your message here..." class="form-control"></textarea>
+                            <button onclick="sendMessage()" class="btn btn-primary">SEND</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====================
+        // DATA MANAGEMENT
+        // ====================
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        let sales = JSON.parse(localStorage.getItem('sales')) || [];
+        let users = JSON.parse(localStorage.getItem('users')) || {
+            admin: { 
+                password: "admin123", 
+                isAdmin: true,
+                firstName: "Admin",
+                lastName: "User",
+                gender: "Male",
+                dob: "1990-01-01",
+                phone: "0000000000",
+                address: "System Address"
+            },
+            employee1: { 
+                password: "staff123", 
+                isAdmin: false,
+                firstName: "John",
+                lastName: "Doe",
+                gender: "Male",
+                dob: "1995-05-15",
+                phone: "1234567890",
+                address: "123 Main St, City"
+            }
+        };
+        let payslips = JSON.parse(localStorage.getItem('payslips')) || [];
+        let messages = JSON.parse(localStorage.getItem('messages')) || [];
+        let currentUser = null;
+        let tempSales = {};
+
+        // ====================
+        // INITIALIZATION
+        // ====================
+        function initializeApp() {
+            if (!localStorage.getItem('users')) {
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            if (!localStorage.getItem('products')) {
+                localStorage.setItem('products', JSON.stringify(products));
+            }
+            if (!localStorage.getItem('sales')) {
+                localStorage.setItem('sales', JSON.stringify(sales));
+            }
+            if (!localStorage.getItem('payslips')) {
+                localStorage.setItem('payslips', JSON.stringify(payslips));
+            }
+            if (!localStorage.getItem('messages')) {
+                localStorage.setItem('messages', JSON.stringify(messages));
+            }
+            
+            document.getElementById('reportDate').valueAsDate = new Date();
+            document.getElementById('employeeSearchDate').valueAsDate = new Date();
+            document.getElementById('monthlyReportDate').value = new Date().toISOString().slice(0, 7);
+            document.getElementById('payMonth').value = new Date().toISOString().slice(0, 7);
+            populateEmployeeDropdown();
+        }
+
+        function populateEmployeeDropdown() {
+            const select = document.getElementById('payslipEmployee');
+            select.innerHTML = '<option value="">Select Employee</option>';
+            
+            for (const username in users) {
+                if (!users[username].isAdmin) {
+                    const option = document.createElement('option');
+                    option.value = username;
+                    option.textContent = username;
+                    select.appendChild(option);
+                }
+            }
+        }
+
+        function populateMessageRecipients() {
+            const adminSelect = document.getElementById('messageRecipient');
+            const employeeSelect = document.getElementById('employeeMessageRecipient');
+            
+            adminSelect.innerHTML = '<option value="">Select Recipient</option>';
+            employeeSelect.innerHTML = '<option value="">Select Recipient</option>';
+            
+            // Add admin option for employees
+            const adminOption = document.createElement('option');
+            adminOption.value = "admin";
+            adminOption.textContent = "Admin";
+            employeeSelect.appendChild(adminOption);
+            
+            // Add all users as options
+            for (const username in users) {
+                if (username !== currentUser.username) {
+                    const option1 = document.createElement('option');
+                    option1.value = username;
+                    option1.textContent = username;
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = username;
+                    option2.textContent = username;
+                    
+                    adminSelect.appendChild(option1);
+                    employeeSelect.appendChild(option2);
+                }
+            }
+        }
+
+        function loadMessages() {
+            const adminContainer = document.getElementById('adminMessageContainer');
+            const employeeContainer = document.getElementById('employeeMessageContainer');
+            
+            adminContainer.innerHTML = '';
+            employeeContainer.innerHTML = '';
+            
+            const userMessages = messages.filter(msg => 
+                msg.to === currentUser.username || msg.from === currentUser.username
+            );
+            
+            userMessages.forEach(msg => {
+                const isSent = msg.from === currentUser.username;
+                const container = currentUser.isAdmin ? adminContainer : employeeContainer;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+                
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'message-sender';
+                senderDiv.textContent = isSent ? 'You' : msg.from;
+                
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                timeDiv.textContent = msg.time;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.textContent = msg.content;
+                
+                messageDiv.appendChild(senderDiv);
+                messageDiv.appendChild(contentDiv);
+                messageDiv.appendChild(timeDiv);
+                
+                container.appendChild(messageDiv);
+            });
+            
+            // Scroll to bottom
+            if (adminContainer) adminContainer.scrollTop = adminContainer.scrollHeight;
+            if (employeeContainer) employeeContainer.scrollTop = employeeContainer.scrollHeight;
+        }
+
+        // ====================
+        // AUTHENTICATION
+        // ====================
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        function checkPassword() {
+            const role = document.getElementById('userRole').value;
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('passwordInput').value;
+
+            // Check for empty fields
+            if (!username || !password) {
+                alert("Please enter both username and password!");
+                return;
+            }
+
+            if (role === "admin") {
+                // Admin login check
+                if (username === "admin" && password === users.admin.password) {
+                    loginSuccess("admin", true);
+                } else {
+                    alert("Invalid admin credentials!");
+                }
+            } else {
+                // Employee login check
+                if (users[username] && password === users[username].password && !users[username].isAdmin) {
+                    loginSuccess(username, false);
+                } else {
+                    alert("Invalid employee credentials!");
+                }
+            }
+        }
+
+        function loginSuccess(username, isAdmin) {
+            currentUser = { username, isAdmin };
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appContent').classList.remove('hidden');
+            document.getElementById('dashboardTitle').textContent = isAdmin ? 'MANAGER DASHBOARD' : 'EMPLOYEE DASHBOARD';
+                     
+            updateUIAfterLogin();
+            populateMessageRecipients();
+            loadMessages();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('appContent').classList.add('hidden');
+            document.getElementById('passwordInput').value = '';
+            tempSales = {};
+        }
+
+        // ====================
+        // TAB MANAGEMENT
+        // ====================
+        function switchTab(tabName) {
+            // Update tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            
+            // Special handling for messages tab
+            if (tabName === 'messages') {
+                loadMessages();
+            }
+        }
+
+        // ====================
+        // PRODUCT MANAGEMENT
+        // ====================
+        function addProduct() {
+            const name = document.getElementById('productName').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const quantity = parseInt(document.getElementById('productQuantity').value);
+            
+            if (name && !isNaN(price) && !isNaN(quantity)) {
+                products.push({ 
+                    id: Date.now().toString(),
+                    name, 
+                    price, 
+                    quantity 
+                });
+                saveProducts();
+                updateInventory();
+                if (!currentUser.isAdmin) {
+                    updateEmployeeSalesView();
+                }
+                clearProductForm();
+            } else {
+                alert("Please fill all fields correctly!");
+            }
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            
+            const newName = prompt("Enter new product name:", product.name);
+            if (newName === null) return;
+            
+            const newPrice = parseFloat(prompt("Enter new price:", product.price));
+            if (isNaN(newPrice)) {
+                alert("Invalid price!");
+                return;
+            }
+            
+            const newQty = parseInt(prompt("Enter new quantity:", product.quantity));
+            if (isNaN(newQty)) {
+                alert("Invalid quantity!");
+                return;
+            }
+            
+            product.name = newName;
+            product.price = newPrice;
+            product.quantity = newQty;
+            
+            saveProducts();
+            updateInventory();
+            if (!currentUser.isAdmin) {
+                updateEmployeeSalesView();
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm("Are you sure you want to delete this product?")) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                updateInventory();
+                if (!currentUser.isAdmin) {
+                    updateEmployeeSalesView();
+                }
+            }
+        }
+
+        function clearProductForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productQuantity').value = '';
+        }
+
+        // ====================
+        // EMPLOYEE MANAGEMENT
+        // ====================
+        function addEmployee() {
+            const username = document.getElementById('newEmployee').value;
+            const password = document.getElementById('newEmployeePass').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const gender = document.getElementById('gender').value;
+            const dob = document.getElementById('dob').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            
+            if (!username || !password || !firstName || !lastName || !gender || !dob || !phone || !address) {
+                alert("Please fill all fields!");
+                return;
+            }
+            
+            if (users[username]) {
+                alert("Username already exists!");
+                return;
+            }
+            
+            users[username] = { 
+                password, 
+                isAdmin: false,
+                firstName,
+                lastName,
+                gender,
+                dob,
+                phone,
+                address
+            };
+            saveUsers();
+            updateEmployeesList();
+            populateEmployeeDropdown();
+            populateMessageRecipients();
+            alert(`Employee ${username} added successfully!`);
+            
+            // Clear form
+            document.getElementById('newEmployee').value = '';
+            document.getElementById('newEmployeePass').value = '';
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('gender').value = '';
+            document.getElementById('dob').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('address').value = '';
+        }
+
+        function editUser(username) {
+            if (username === 'admin' && currentUser.username !== 'admin') {
+                alert("Only admin can edit admin account!");
+                return;
+            }
+            
+            const user = users[username];
+            const newPassword = prompt("Enter new password:", user.password);
+            if (!newPassword) {
+                alert("Password cannot be empty!");
+                return;
+            }
+            
+            if (!user.isAdmin) {
+                // For employees, show full edit form
+                const newFirstName = prompt("First Name:", user.firstName);
+                if (!newFirstName) return;
+                
+                const newLastName = prompt("Last Name:", user.lastName);
+                if (!newLastName) return;
+                
+                const newGender = prompt("Gender (Male/Female/Other):", user.gender);
+                if (!newGender) return;
+                
+                const newDob = prompt("Date of Birth (YYYY-MM-DD):", user.dob);
+                if (!newDob) return;
+                
+                const newPhone = prompt("Phone Number:", user.phone);
+                if (!newPhone) return;
+                
+                const newAddress = prompt("Home Address:", user.address);
+                if (!newAddress) return;
+                
+                user.firstName = newFirstName;
+                user.lastName = newLastName;
+                user.gender = newGender;
+                user.dob = newDob;
+                user.phone = newPhone;
+                user.address = newAddress;
+            }
+            
+            user.password = newPassword;
+            saveUsers();
+            updateEmployeesList();
+            alert("Employee details updated successfully!");
+        }
+
+        function removeEmployee(username) {
+            if (username === 'admin') {
+                alert("Cannot remove admin account!");
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to remove employee ${username}?`)) {
+                delete users[username];
+                saveUsers();
+                updateEmployeesList();
+                populateEmployeeDropdown();
+                populateMessageRecipients();
+            }
+        }
+
+        // ====================
+        // SALES MANAGEMENT
+        // ====================
+        function updateEmployeeSalesView() {
+            const employeeSalesList = document.getElementById('employeeSalesList');
+            employeeSalesList.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                // Determine status
+                let statusClass, statusText;
+                if (product.quantity === 0) {
+                    statusClass = 'status-unavailable';
+                    statusText = 'UNAVAILABLE';
+                } else if (product.quantity < 5) {
+                    statusClass = 'status-low';
+                    statusText = 'LOW STOCK';
+                } else {
+                    statusClass = 'status-available';
+                    statusText = 'AVAILABLE';
+                }
+                
+                employeeSalesList.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${product.name}</td>
+                        <td class="currency">${product.price.toFixed(2)}</td>
+                        <td>${product.quantity}</td>
+                        <td><input type="number" id="sold_${product.id}" 
+                               value="${tempSales[product.id] || 0}" 
+                               min="0" max="${product.quantity}" 
+                               onchange="updateTempSale('${product.id}', this.value)"></td>
+                        <td class="${statusClass}">${statusText}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateTempSale(productId, quantity) {
+            const qty = parseInt(quantity) || 0;
+            const product = products.find(p => p.id === productId);
+            
+            if (qty < 0) {
+                document.getElementById(`sold_${productId}`).value = 0;
+                tempSales[productId] = 0;
+            } else if (qty > product.quantity) {
+                document.getElementById(`sold_${productId}`).value = product.quantity;
+                tempSales[productId] = product.quantity;
+                alert("Cannot sell more than available stock!");
+            } else {
+                tempSales[productId] = qty;
+            }
+            
+            calculateDailyTotal();
+        }
+
+        function submitSales() {
+            const today = new Date().toISOString().split('T')[0];
+            const time = new Date().toLocaleTimeString();
+            let hasSales = false;
+            
+            for (const productId in tempSales) {
+                const qty = tempSales[productId];
+                if (qty > 0) {
+                    hasSales = true;
+                    const product = products.find(p => p.id === productId);
+                    product.quantity -= qty;
+                    const total = qty * product.price;
+                    
+                    sales.push({
+                        product: product.name,
+                        quantity: qty,
+                        price: product.price,
+                        total,
+                        date: today,
+                        time: time,
+                        soldBy: currentUser.username,
+                        submitted: true
+                    });
+                }
+            }
+            
+                      if (hasSales) {
+                saveProducts();
+                saveSales();
+                tempSales = {};
+                updateEmployeeSalesView();
+                alert("Sales submitted successfully");
+            } else {
+                alert("No sales entered!");
+            }
+        }
+
+        function searchEmployeeSales() {
+            const date = document.getElementById('employeeSearchDate').value;
+            if (!date) {
+                alert("Please select a date!");
+                return;
+            }
+            
+            // Only show submitted sales for the current user
+            const filteredSales = sales.filter(sale => 
+                sale.date === date && 
+                sale.soldBy === currentUser.username && 
+                sale.submitted
+            );
+            
+            if (filteredSales.length === 0) {
+                alert("No submitted sales found for the selected date!");
+                return;
+            }
+            
+            // Enable print and export buttons
+            document.getElementById('printDailySalesBtn').disabled = false;
+            document.getElementById('exportDailySalesBtn').disabled = false;
+            
+            // Display the sales
+            const employeeSalesList = document.getElementById('employeeSalesList');
+            employeeSalesList.innerHTML = '';
+            
+            filteredSales.forEach((sale, index) => {
+                employeeSalesList.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${sale.product}</td>
+                        <td class="currency">${sale.price.toFixed(2)}</td>
+                        <td>${sale.quantity}</td>
+                        <td class="currency">${sale.total.toFixed(2)}</td>
+                        <td>${sale.time}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ====================
+        // SALES REPORTING
+        // ====================
+        function displayGroupedSales() {
+            const groupedSales = {};
+            const groupedSalesContainer = document.getElementById('groupedSalesRecords');
+            groupedSalesContainer.innerHTML = '';
+            
+            // Group sales by date (only submitted sales)
+            sales.forEach(sale => {
+                if (sale.submitted) {
+                    if (!groupedSales[sale.date]) {
+                        groupedSales[sale.date] = [];
+                    }
+                    groupedSales[sale.date].push(sale);
+                }
+            });
+            
+            // Sort dates in descending order
+            const sortedDates = Object.keys(groupedSales).sort((a, b) => new Date(b) - new Date(a));
+            
+            // Create UI for each date group
+            sortedDates.forEach(date => {
+                const dateGroup = document.createElement('div');
+                dateGroup.className = 'sales-date-group';
+                
+                const header = document.createElement('div');
+                header.className = 'sales-date-header';
+                header.textContent = `Sales on ${date}`;
+                header.onclick = function() {
+                    const content = this.nextElementSibling;
+                    content.classList.toggle('expanded');
+                };
+                
+                const content = document.createElement('div');
+                content.className = 'sales-date-content';
+                
+                // Create product summary table
+                const productSummary = {};
+                groupedSales[date].forEach(sale => {
+                    if (!productSummary[sale.product]) {
+                        productSummary[sale.product] = {
+                            quantity: 0,
+                            total: 0
+                        };
+                    }
+                    productSummary[sale.product].quantity += sale.quantity;
+                    productSummary[sale.product].total += sale.total;
+                });
+                
+                const summaryTable = document.createElement('table');
+                summaryTable.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Total Qty Sold</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                
+                const summaryTbody = summaryTable.querySelector('tbody');
+                for (const product in productSummary) {
+                    summaryTbody.innerHTML += `
+                        <tr>
+                            <td>${product}</td>
+                            <td>${productSummary[product].quantity}</td>
+                            <td class="currency">${productSummary[product].total.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }
+                
+                // Create detailed transactions table
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty Sold</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                            <th>Time</th>
+                            <th>Sold By</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                
+                const tbody = table.querySelector('tbody');
+                groupedSales[date].forEach(sale => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${sale.product}</td>
+                            <td>${sale.quantity}</td>
+                            <td class="currency">${sale.price.toFixed(2)}</td>
+                            <td class="currency">${sale.total.toFixed(2)}</td>
+                            <td>${sale.time}</td>
+                            <td>${sale.soldBy}</td>
+                        </tr>
+                    `;
+                });
+                
+                // Calculate daily total
+                const dailyTotal = groupedSales[date].reduce((sum, sale) => sum + sale.total, 0);
+                
+                tbody.innerHTML += `
+                    <tr style="font-weight: bold; background-color: #f5f5f5;">
+                        <td colspan="3">Daily Total</td>
+                        <td class="currency">${dailyTotal.toFixed(2)}</td>
+                        <td colspan="2"></td>
+                    </tr>
+                `;
+                
+                content.appendChild(summaryTable);
+                content.appendChild(document.createElement('br'));
+                content.appendChild(document.createElement('h4')).textContent = 'Detailed Transactions';
+                content.appendChild(table);
+                dateGroup.appendChild(header);
+                dateGroup.appendChild(content);
+                groupedSalesContainer.appendChild(dateGroup);
+            });
+            
+            // Enable print and export buttons if there are sales
+            document.getElementById('printAdminDailySalesBtn').disabled = sales.length === 0;
+            document.getElementById('exportAdminDailySalesBtn').disabled = sales.length === 0;
+        }
+
+        function generateDailyReport() {
+            const date = document.getElementById('reportDate').value;
+            if (!date) {
+                alert("Please select a date!");
+                return;
+            }
+            
+            // Only show submitted sales
+            const filteredSales = sales.filter(sale => sale.date === date && sale.submitted);
+            
+            if (filteredSales.length === 0) {
+                document.getElementById('dailyReport').innerHTML = `
+                    <div class="card">
+                        <h4>No submitted sales recorded for ${date}</h4>
+                    </div>
+                `;
+                document.getElementById('printAdminDailySalesBtn').disabled = true;
+                document.getElementById('exportAdminDailySalesBtn').disabled = true;
+                return;
+            }
+            
+            // Create product summary
+            const productSummary = {};
+            filteredSales.forEach(sale => {
+                if (!productSummary[sale.product]) {
+                    productSummary[sale.product] = {
+                        quantity: 0,
+                        total: 0
+                    };
+                }
+                productSummary[sale.product].quantity += sale.quantity;
+                productSummary[sale.product].total += sale.total;
+            });
+            
+            let summaryHTML = '<table><thead><tr><th>Product</th><th>Qty Sold</th><th>Total</th></tr></thead><tbody>';
+            for (const product in productSummary) {
+                summaryHTML += `
+                    <tr>
+                        <td>${product}</td>
+                        <td>${productSummary[product].quantity}</td>
+                        <td class="currency">${productSummary[product].total.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+            summaryHTML += '</tbody></table>';
+            
+            const totalSales = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+            
+            const reportHTML = `
+                <div class="card">
+                    <h4>Sales Report for ${date}</h4>
+                    <p><strong>Total Sales:</strong> <span class="currency">${totalSales.toFixed(2)}</span></p>
+                    <p><strong>Transactions:</strong> ${filteredSales.length}</p>
+                    <p><strong>Items Sold:</strong> ${filteredSales.reduce((sum, sale) => sum + sale.quantity, 0)}</p>
+                    <h5>Product Summary</h5>
+                    ${summaryHTML}
+                </div>
+            `;
+            
+            document.getElementById('dailyReport').innerHTML = reportHTML;
+            document.getElementById('printAdminDailySalesBtn').disabled = false;
+            document.getElementById('exportAdminDailySalesBtn').disabled = false;
+        }
+
+        function generateMonthlyReport() {
+            const month = document.getElementById('monthlyReportDate').value;
+            if (!month) {
+                alert("Please select a month!");
+                return;
+            }
+            
+            const [year, monthNum] = month.split('-');
+            // Only show submitted sales
+            const filteredSales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                return saleDate.getFullYear() == year && 
+                       (saleDate.getMonth() + 1) == monthNum &&
+                       sale.submitted;
+            });
+            
+            if (filteredSales.length === 0) {
+                document.getElementById('monthlyReport').innerHTML = `
+                    <div class="card">
+                        <h4>No submitted sales recorded for ${month}</h4>
+                    </div>
+                `;
+                document.getElementById('printMonthlySalesBtn').disabled = true;
+                document.getElementById('exportMonthlySalesBtn').disabled = true;
+                return;
+            }
+            
+            // Group sales by date
+            const salesByDate = {};
+            filteredSales.forEach(sale => {
+                if (!salesByDate[sale.date]) {
+                    salesByDate[sale.date] = [];
+                }
+                salesByDate[sale.date].push(sale);
+            });
+            
+            // Create product summary for the month
+            const productSummary = {};
+            filteredSales.forEach(sale => {
+                if (!productSummary[sale.product]) {
+                    productSummary[sale.product] = {
+                        quantity: 0,
+                        total: 0
+                    };
+                }
+                productSummary[sale.product].quantity += sale.quantity;
+                productSummary[sale.product].total += sale.total;
+            });
+            
+            // Calculate monthly totals
+            const monthlyTotal = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+            const totalItemsSold = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
+            
+            // Create HTML for daily breakdown
+            let dailyBreakdownHTML = '<h5>Daily Breakdown</h5>';
+            const sortedDates = Object.keys(salesByDate).sort((a, b) => new Date(a) - new Date(b));
+            
+            sortedDates.forEach(date => {
+                const dailySales = salesByDate[date];
+                const dailyTotal = dailySales.reduce((sum, sale) => sum + sale.total, 0);
+                
+                dailyBreakdownHTML += `
+                    <div class="sales-date-group">
+                        <div class="sales-date-header">
+                            ${date} - Total: <span class="currency">${dailyTotal.toFixed(2)}</span>
+                        </div>
+                        <div class="sales-date-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Unit Price</th>
+                                        <th>Total</th>
+                                        <th>Sold By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${dailySales.map(sale => `
+                                        <tr>
+                                            <td>${sale.product}</td>
+                                            <td>${sale.quantity}</td>
+                                            <td class="currency">${sale.price.toFixed(2)}</td>
+                                            <td class="currency">${sale.total.toFixed(2)}</td>
+                                            <td>${sale.soldBy}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Create HTML for product summary
+            let productSummaryHTML = '<h5>PRODUCT SUMMARY</h5><table><thead><tr><th>PRODUCT</th><th>TOTAL QTY</th><th>TOTAL AMOUNT</th></tr></thead><tbody>';
+            
+            for (const product in productSummary) {
+                productSummaryHTML += `
+                    <tr>
+                        <td>${product}</td>
+                        <td>${productSummary[product].quantity}</td>
+                        <td class="currency">${productSummary[product].total.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+            
+            productSummaryHTML += '</tbody></table>';
+            
+            // Create the full report
+            const reportHTML = `
+                <div class="card">
+                    <h4>Monthly Sales Report for ${month}</h4>
+                    <p><strong>Total Sales:</strong> <span class="currency">${monthlyTotal.toFixed(2)}</span></p>
+                    <p><strong>Total Transactions:</strong> ${filteredSales.length}</p>
+                    <p><strong>Total Items Sold:</strong> ${totalItemsSold}</p>
+                    ${productSummaryHTML}
+                    ${dailyBreakdownHTML}
+                </div>
+            `;
+            
+            document.getElementById('monthlyReport').innerHTML = reportHTML;
+            document.getElementById('printMonthlySalesBtn').disabled = false;
+            document.getElementById('exportMonthlySalesBtn').disabled = false;
+        }
+
+        // ====================
+        // EXPORT FUNCTIONS
+        // ====================
+        function exportDailySalesToExcel() {
+            const date = document.getElementById(currentUser.isAdmin ? 'reportDate' : 'employeeSearchDate').value;
+            if (!date) {
+                alert("Please select a date first!");
+                return;
+            }
+            
+            const filteredSales = currentUser.isAdmin 
+                ? sales.filter(sale => sale.date === date && sale.submitted)
+                : sales.filter(sale => sale.date === date && sale.soldBy === currentUser.username && sale.submitted);
+            
+            if (filteredSales.length === 0) {
+                alert("No sales data to export for the selected date!");
+                return;
+            }
+            
+            // Create product summary
+            const productSummary = {};
+            filteredSales.forEach(sale => {
+                if (!productSummary[sale.product]) {
+                    productSummary[sale.product] = {
+                        quantity: 0,
+                        total: 0
+                    };
+                }
+                productSummary[sale.product].quantity += sale.quantity;
+                productSummary[sale.product].total += sale.total;
+            });
+            
+            // Create CSV content
+            let csvContent = "Product,Quantity Sold,Total Amount\n";
+            
+            for (const product in productSummary) {
+                csvContent += `${product},${productSummary[product].quantity},${productSummary[product].total.toFixed(2)}\n`;
+            }
+            
+            // Add total
+            const totalSales = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+            csvContent += `TOTAL,,${totalSales.toFixed(2)}\n`;
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Daily_Sales_${date}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportMonthlySalesToExcel() {
+            const month = document.getElementById('monthlyReportDate').value;
+            if (!month) {
+                alert("Please select a month first!");
+                return;
+            }
+            
+            const [year, monthNum] = month.split('-');
+            const filteredSales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                return saleDate.getFullYear() == year && 
+                       (saleDate.getMonth() + 1) == monthNum &&
+                       sale.submitted;
+            });
+            
+            if (filteredSales.length === 0) {
+                alert("No sales data to export for the selected month!");
+                return;
+            }
+            
+            // Create product summary
+            const productSummary = {};
+            filteredSales.forEach(sale => {
+                if (!productSummary[sale.product]) {
+                    productSummary[sale.product] = {
+                        quantity: 0,
+                        total: 0
+                    };
+                }
+                productSummary[sale.product].quantity += sale.quantity;
+                productSummary[sale.product].total += sale.total;
+            });
+            
+            // Create CSV content
+            let csvContent = "Product,Total Quantity Sold,Total Amount\n";
+            
+            for (const product in productSummary) {
+                csvContent += `${product},${productSummary[product].quantity},${productSummary[product].total.toFixed(2)}\n`;
+            }
+            
+            // Add total
+            const monthlyTotal = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+            csvContent += `TOTAL,,${monthlyTotal.toFixed(2)}\n`;
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Monthly_Sales_${month}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ====================
+        // PRINT FUNCTIONS
+        // ====================
+        function printDailySales() {
+            const date = document.getElementById(currentUser.isAdmin ? 'reportDate' : 'employeeSearchDate').value;
+            if (!date) {
+                alert("Please select a date first!");
+                return;
+            }
+            
+            const filteredSales = currentUser.isAdmin 
+                ? sales.filter(sale => sale.date === date && sale.submitted)
+                : sales.filter(sale => sale.date === date && sale.soldBy === currentUser.username && sale.submitted);
+            
+            if (filteredSales.length === 0) {
+                alert("No sales data to print for the selected date!");
+                return;
+            }
+            
+            // Create product summary
+            const productSummary = {};
+            filteredSales.forEach(sale => {
+                if (!productSummary[sale.product]) {
+                    productSummary[sale.product] = {
+                        quantity: 0,
+                        total: 0
+                    };
+                }
+                productSummary[sale.product].quantity += sale.quantity;
+                productSummary[sale.product].total += sale.total;
+            });
+            
+            let summaryHTML = '<table style="width:100%;border-collapse:collapse;"><thead><tr><th style="border:1px solid #ddd;padding:8px;">Product</th><th style="border:1px solid #ddd;padding:8px;">Qty</th><th style="border:1px solid #ddd;padding:8px;">Total</th></tr></thead><tbody>';
+            for (const product in productSummary) {
+                summaryHTML += `
+                    <tr>
+                        <td style="border:1px solid #ddd;padding:8px;">${product}</td>
+                        <td style="border:1px solid #ddd;padding:8px;">${productSummary[product].quantity}</td>
+                        <td style="border:1px solid #ddd;padding:8px;" class="currency">${productSummary[product].total.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+            summaryHTML += '</tbody></table>';
+            
+            const totalSales = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+            
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = `
+                <div class="print-container">
+                    <div class="print-watermark">NAMLAN MART</div>
+                    <h2 style="text-align:center;">NAMLAN MART - DAILY SALES REPORT</h2>
+                    <h3 style="text-align:center;">Date: ${date}</h3>
+                    <p><strong>Total Sales:</strong> <span class="currency">${totalSales.toFixed(2)}</span></p>
+                    <p><strong>Transactions:</strong> ${filteredSales.length}</p>
+                    <p><strong>Items Sold:</strong> ${filteredSales.reduce((sum, sale) => sum + sale.quantity, 0)}</p>
+                    <h4>Product Summary</h4>
+                    ${summaryHTML}
+                    <div style="margin-top:50px;text-align:center;">
+                        <p>_________________________</p>
+                        <p>Umar Alhassan Gunu</p>
+                    </div>
+                </div>
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            updateUIAfterLogin();
+        }
+
+        function printMonthlySales() {
+            const month = document.getElementById('monthlyReportDate').value;
+            if (!month) {
+                alert("Please select a month first!");
+                return;
+            }
+            
+            const [year, monthNum] = month.split('-');
+            const filteredSales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                return saleDate.getFullYear() == year && 
+                       (saleDate.getMonth() + 1) == monthNum &&
+                       sale.submitted;
+            });
+            
+            if (filteredSales.length === 0) {
+                alert("No sales data to print for the selected month!");
+                return;
+            }
+            
+            // Create product summary
+            const productSummary = {};
+            filteredSales.forEach(sale => {
+                if (!productSummary[sale.product]) {
+                    productSummary[sale.product] = {
+                        quantity: 0,
+                        total: 0
+                    };
+                }
+                productSummary[sale.product].quantity += sale.quantity;
+                productSummary[sale.product].total += sale.total;
+            });
+            
+            let summaryHTML = '<table style="width:100%;border-collapse:collapse;"><thead><tr><th style="border:1px solid #ddd;padding:8px;">Product</th><th style="border:1px solid #ddd;padding:8px;">Total Qty</th><th style="border:1px solid #ddd;padding:8px;">Total Amount</th></tr></thead><tbody>';
+            for (const product in productSummary) {
+                summaryHTML += `
+                    <tr>
+                        <td style="border:1px solid #ddd;padding:8px;">${product}</td>
+                        <td style="border:1px solid #ddd;padding:8px;">${productSummary[product].quantity}</td>
+                        <td style="border:1px solid #ddd;padding:8px;" class="currency">${productSummary[product].total.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+            summaryHTML += '</tbody></table>';
+            
+            const monthlyTotal = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+            const totalItemsSold = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
+            
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = `
+                <div class="print-container">
+                    <div class="print-watermark">NAMLAN MART</div>
+                    <h2 style="text-align:center;">NAMLAN MART - MONTHLY SALES REPORT</h2>
+                    <h3 style="text-align:center;">Month: ${month}</h3>
+                    <p><strong>Total Sales:</strong> <span class="currency">${monthlyTotal.toFixed(2)}</span></p>
+                    <p><strong>Transactions:</strong> ${filteredSales.length}</p>
+                    <p><strong>Items Sold:</strong> ${totalItemsSold}</p>
+                    <h4>Product Summary</h4>
+                    ${summaryHTML}
+                    <div style="margin-top:50px;text-align:center;">
+                        <p>_________________________</p>
+                        <p>Umar Alhassan Gunu</p>
+                    </div>
+                </div>
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            updateUIAfterLogin();
+        }
+
+        // ====================
+        // PAYSLIP MANAGEMENT
+        // ====================
+        function generatePayslip() {
+            const employee = document.getElementById('payslipEmployee').value;
+            const basicSalary = parseFloat(document.getElementById('basicSalary').value);
+            const allowances = parseFloat(document.getElementById('allowances').value) || 0;
+            const deductions = parseFloat(document.getElementById('deductions').value) || 0;
+            const payMonth = document.getElementById('payMonth').value;
+            
+            if (!employee || isNaN(basicSalary)) {
+                alert("Please select an employee and enter basic salary!");
+                return;
+            }
+            
+            const grossSalary = basicSalary + allowances;
+            const netSalary = grossSalary - deductions;
+            
+            const payslip = {
+                employee,
+                basicSalary,
+                allowances,
+                deductions,
+                grossSalary,
+                netSalary,
+                payMonth,
+                generatedDate: new Date().toLocaleDateString()
+            };
+            
+            document.getElementById('payslipDetails').innerHTML = `
+                <div class="print-container">
+                    <div class="payslip-watermark">NAMLAN MART</div>
+                    <h3 style="text-align: center;">NAMLAN MART - EMPLOYEE PAYSLIP</h3>
+                    <p><strong>Employee:</strong> ${employee} (${users[employee].firstName} ${users[employee].lastName})</p>
+                    <p><strong>Pay Month:</strong> ${payMonth}</p>
+                    <hr>
+                    <p><strong>Basic Salary:</strong> <span class="currency">${basicSalary.toFixed(2)}</span></p>
+                    <p><strong>Allowances:</strong> <span class="currency">${allowances.toFixed(2)}</span></p>
+                    <p><strong>Deductions:</strong> <span class="currency">${deductions.toFixed(2)}</span></p>
+                    <hr>
+                    <p><strong>Gross Salary:</strong> <span class="currency">${grossSalary.toFixed(2)}</span></p>
+                    <p><strong>Net Salary:</strong> <span class="currency">${netSalary.toFixed(2)}</span></p>
+                    <hr>
+                    <p><strong>Generated On:</strong> ${payslip.generatedDate}</p>
+                    <div style="margin-top: 50px; text-align: center;">
+                        <p>_________________________</p>
+                        <p>Umar Alhassan Gunu</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('payslipResult').classList.remove('hidden');
+            document.getElementById('printPayslipBtn').disabled = false;
+            
+            // Save to payslips array
+            payslips.push(payslip);
+            savePayslips();
+        }
+
+        function printPayslip() {
+            const printContent = document.getElementById('payslipDetails').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            updateUIAfterLogin();
+        }
+
+        // ====================
+        // MESSAGING SYSTEM
+        // ====================
+        function sendMessage() {
+            const recipient = document.getElementById('messageRecipient').value;
+            const content = document.getElementById('adminMessageInput').value.trim();
+            
+            if (!recipient || !content) {
+                alert("Please select a recipient and enter a message!");
+                return;
+            }
+            
+            const message = {
+                from: currentUser.username,
+                to: recipient,
+                content: content,
+                time: new Date().toLocaleTimeString()
+            };
+            
+            messages.push(message);
+            saveMessages();
+            document.getElementById('adminMessageInput').value = '';
+            loadMessages();
+        }
+
+        function sendEmployeeMessage() {
+            const recipient = document.getElementById('employeeMessageRecipient').value;
+            const content = document.getElementById('employeeMessageInput').value.trim();
+            
+            if (!recipient || !content) {
+                alert("Please select a recipient and enter a message!");
+                return;
+            }
+            
+            const message = {
+                from: currentUser.username,
+                to: recipient,
+                content: content,
+                time: new Date().toLocaleTimeString()
+            };
+            
+            messages.push(message);
+            saveMessages();
+            document.getElementById('employeeMessageInput').value = '';
+            loadMessages();
+        }
+
+        function saveMessages() {
+            localStorage.setItem('messages', JSON.stringify(messages));
+        }
+
+        // ====================
+        // INVENTORY DISPLAY
+        // ====================
+        function updateInventory() {
+            const inventoryList = document.getElementById('inventoryList');
+            inventoryList.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                // Determine status
+                let statusClass, statusText;
+                if (product.quantity === 0) {
+                    statusClass = 'status-unavailable';
+                    statusText = 'UNAVAILABLE';
+                } else if (product.quantity < 5) {
+                    statusClass = 'status-low';
+                    statusText = 'LOW STOCK';
+                } else {
+                    statusClass = 'status-available';
+                    statusText = 'AVAILABLE';
+                }
+                
+                inventoryList.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${product.name}</td>
+                        <td class="currency">${product.price.toFixed(2)}</td>
+                        <td>${product.quantity}</td>
+                        <td class="${statusClass}">${statusText}</td>
+                        <td>
+                            <button onclick="editProduct('${product.id}')" class="edit-btn">
+                                Edit
+                            </button>
+                            <button onclick="deleteProduct('${product.id}')" class="delete-btn">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ====================
+        // EMPLOYEE LIST DISPLAY
+        // ====================
+        function updateEmployeesList() {
+            const employeesList = document.getElementById('employeesList');
+            employeesList.innerHTML = '';
+            
+            for (const username in users) {
+                const user = users[username];
+                if (username === 'admin') {
+                    // Admin can only be edited, not removed
+                    employeesList.innerHTML += `
+                        <tr>
+                            <td>${username} (Admin)</td>
+                            <td>${user.firstName} ${user.lastName}</td>
+                            <td>${user.gender}</td>
+                            <td>${user.phone}</td>
+                            <td>
+                                <button onclick="editUser('${username}')" class="btn btn-primary btn-sm">
+                                    Edit
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                } else if (!user.isAdmin) {
+                    employeesList.innerHTML += `
+                        <tr>
+                            <td>${username}</td>
+                            <td>${user.firstName} ${user.lastName}</td>
+                            <td>${user.gender}</td>
+                            <td>${user.phone}</td>
+                            <td>
+                                <button onclick="editUser('${username}')" class="btn btn-primary btn-sm">
+                                    Edit
+                                </button>
+                                <button onclick="removeEmployee('${username}')" class="btn btn-danger btn-sm">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        // ====================
+        // SALES CALCULATIONS
+        // ====================
+        function calculateDailyTotal() {
+            let total = 0;
+            
+            for (const productId in tempSales) {
+                const qty = tempSales[productId] || 0;
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    total += qty * product.price;
+                }
+            }
+            
+            document.getElementById('dailyTotal').textContent = total.toFixed(2);
+        }
+
+        // ====================
+        // DATA PERSISTENCE
+        // ====================
+        function saveProducts() {
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+
+        function saveSales() {
+            localStorage.setItem('sales', JSON.stringify(sales));
+        }
+
+        function saveUsers() {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        function savePayslips() {
+            localStorage.setItem('payslips', JSON.stringify(payslips));
+        }
+
+        // ====================
+        // UI UPDATES
+        // ====================
+        function updateUIAfterLogin() {
+            if (currentUser.isAdmin) {
+                document.getElementById('adminTabs').classList.remove('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                document.getElementById('employeeView').classList.add('hidden');
+                updateInventory();
+                updateEmployeesList();
+                displayGroupedSales();
+                populateEmployeeDropdown();
+                populateMessageRecipients();
+            } else {
+                document.getElementById('adminTabs').classList.add('hidden');
+                document.getElementById('adminContent').classList.add('hidden');
+                document.getElementById('employeeView').classList.remove('hidden');
+                updateEmployeeSalesView();
+                populateMessageRecipients();
+            }
+            
+            calculateDailyTotal();
+        }
+
+        // ====================
+        // INITIALIZE APP
+        // ====================
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
